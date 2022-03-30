@@ -48,7 +48,7 @@ public:
 		}
 		nn_idx = find(logi > 0);
 	}
-	
+
 	//range search based on nanoflann kdtree methods
 	//input: nanoflann::KDTreeEigenMatrixAdaptor<Eigen::MatrixXd>& tindex, arma::uvec& pcd_indices, arma::mat& query_mat, double radius
 	//output: arma::uvec& nn_idx
@@ -76,7 +76,7 @@ public:
 			std::transform(ret_matches.begin(), ret_matches.end(), std::back_inserter(ret_idx), [](const std::pair<int, int>& p) { return p.first; });
 			ret_indices.insert(std::end(ret_indices), std::begin(ret_idx), std::end(ret_idx));
 		}
-		
+
 		nn_idx = arma::unique(arma::conv_to<arma::uvec>::from(ret_indices));
 		if (pcd_indices.n_elem > 0)
 		{
@@ -243,7 +243,7 @@ public:
 			arma::rowvec start_pt = arma::conv_to<arma::rowvec>::from(pcd_mat.row(start_ind));
 			arma::rowvec start_pos = start_pt(span(0, 2));
 
-			arma::mat bound_end1(start_pt); 
+			arma::mat bound_end1(start_pt);
 			arma::mat bound_end2(start_pt);
 			arma::rowvec bound_end1_centroid = start_pos;
 			arma::rowvec bound_end2_centroid = start_pos;
@@ -271,9 +271,10 @@ public:
 					{
 						arma::mat bound_end1_pos = arma::conv_to<arma::mat>::from(bound_end1.cols(span(0, 2)));
 						arma::umat unq;
-						util_.UniqueByRow(arma::conv_to<arma::umat>::from(arma::round((bound_end1_pos - arma::repmat(arma::min(bound_end1_pos, 0), bound_end1_pos.n_rows, 1)) / (rg_step_ / 4.0))),unq);
+						arma::umat data = arma::conv_to<arma::umat>::from(arma::round((bound_end1_pos - arma::repmat(arma::min(bound_end1_pos, 0), bound_end1_pos.n_rows, 1)) / (rg_step_ / 4.0)));
+						util_.UniqueByRow(data, unq);
 						arma::mat bound_end1_approx_bin = arma::conv_to<arma::mat>::from(unq);
-												
+
 						bound_end1_approx_bin = bound_end1_approx_bin.cols(span(0, 2));
 						arma::mat bound_end1_approx_pos = bound_end1_approx_bin * rg_step_ / 4 + arma::repmat(arma::min(bound_end1_pos, 0), bound_end1_approx_bin.n_rows, 1);
 						 BruteRadSearch(rest_range_pts, bound_end1_approx_pos, rg_step_, logi_bound1);
@@ -294,7 +295,7 @@ public:
 					else
 					{
 						bound_end1_stop_flag = true;
-						
+
 					}
 				}
 
@@ -306,7 +307,8 @@ public:
 					{
 						arma::mat bound_end2_pos = arma::conv_to<arma::mat>::from(bound_end2.cols(span(0, 2)));
 						arma::umat unq;
-						util_.UniqueByRow(arma::conv_to<arma::umat>::from(arma::round((bound_end2_pos - arma::repmat(arma::min(bound_end2_pos, 0), bound_end2_pos.n_rows, 1)) / (rg_step_ / 4.0))), unq);
+						arma::umat data = arma::conv_to<arma::umat>::from(arma::round((bound_end2_pos - arma::repmat(arma::min(bound_end2_pos, 0), bound_end2_pos.n_rows, 1)) / (rg_step_ / 4.0)));
+						util_.UniqueByRow(data, unq);
 						arma::mat bound_end2_approx_bin = arma::conv_to<arma::mat>::from(unq);
 
 
@@ -369,7 +371,7 @@ public:
 						arma::rowvec centered_end1_2_dir = arma::mean(centered_end1_2.cols(span(0, 2)), 0) - start_pos;
 						centered_end1_2_dir = arma::normalise(centered_end1_2_dir, 2);
 
-						if (dot(centered_end1_1_dir, centered_end1_2_dir) > -0.5)//<120 degree, avoid two ends along same growing direction 
+						if (dot(centered_end1_1_dir, centered_end1_2_dir) > -0.5)//<120 degree, avoid two ends along same growing direction
 						{
 							centered_end1_2.clear();
 						}
@@ -395,7 +397,7 @@ public:
 						arma::rowvec centered_end2_2_dir = arma::mean(centered_end2_2.cols(span(0, 2)), 1) - start_pos;
 						centered_end2_2_dir = arma::normalise(centered_end2_2_dir, 2);
 
-						if (dot(centered_end2_1_dir, centered_end2_2_dir) > -0.5)//<120 degree, avoid two ends along same growing direction 
+						if (dot(centered_end2_1_dir, centered_end2_2_dir) > -0.5)//<120 degree, avoid two ends along same growing direction
 						{
 							centered_end2_2.clear();
 						}
@@ -455,7 +457,7 @@ public:
 						}
 
 
-						if (linear_grow && width_incre > width_ratio_limit_)//pauses growing, if width increases drastically 
+						if (linear_grow && width_incre > width_ratio_limit_)//pauses growing, if width increases drastically
 						{
 							bound_end1_stop_flag = true;
 							arma::uvec subcol1 = arma::conv_to<arma::uvec>::from(bound_end1.col(3));
@@ -467,7 +469,7 @@ public:
 							bound_end1_width_count = bound_end1_width_count + 1;
 						}
 					}
-				
+
 					if (!bound_end2_stop_flag && linear_grow)
 					{
 						bound_end2_centroid = arma::mean(bound_end2.cols(span(0,2)), 0);
@@ -562,11 +564,11 @@ public:
 			}
 
 			//choose next starting seed of region growing;
-			//priority is given to tip points 
+			//priority is given to tip points
 			if (!tip_all_found)
 			{
 				arma:: uvec start_inds = arma::find((seg_flags_avail % seg_flags_tipset)>0, 1, "first");
-				
+
 				if (start_inds.n_elem == 0)
 				{
 					start_inds = arma::find(seg_flags_avail>0, 1, "first");
@@ -666,7 +668,7 @@ public:
 
 		return tip_index;
 	}
-	
+
 	//wrapper for the FastFindTip and SegmentCylinders functions
 	//input: arma::mat& pcd_mat, const double tip_resolution, const double rg_step, const double rg_mingap,string fout
 	//output: a text file (x,y,z,regionID)
@@ -714,6 +716,6 @@ private:
 	double block_size_ = rg_step_*5; //for speed up, limit the search range
 
 	arma::uvec tip_index_;
-	
+
 	CylUtil util_;
 };

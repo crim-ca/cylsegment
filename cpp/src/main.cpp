@@ -1,4 +1,6 @@
+#if defined(_WIN32)
 #include "stdafx.h"
+#endif
 #include "cyl_segmenter.hpp"
 
 using namespace std;
@@ -7,7 +9,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-	
+
 	string filename = argv[1];
 	string fout = argv[2];
 	double approx_res = std::stod(argv[3]);

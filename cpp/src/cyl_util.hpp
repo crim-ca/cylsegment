@@ -84,7 +84,7 @@ public:
 		return headers;
 	}
 
-	//read file and load arma::mat 
+	//read file and load arma::mat
 	int ReadAsciiToMat(string file_path,arma::mat& mats, bool auto_detect=true, char delimiter=' ', int headers = 0)
 	{
 		std::cout << "Reading ascii point clouds..." << std::endl;
@@ -124,7 +124,7 @@ public:
 			}
 			++rows;
 		}
-		
+
 		mats = arma::mat(values.data(), values.size() / rows, rows).t();
 		myfile.close();
 		return 0;
